@@ -1,96 +1,50 @@
 import { request, response } from "express";
-import { v4 as uuidv4 } from "uuid"; 
+import Movie from "../model/movie.model.js";
 
-
-/*
-Atributos:
-● id
-● title
-
-● description
-● year
-● genres
-● image
-● video
-*/
-
-//Impressão de crud de filmes
-
-let movies = [];
-
-// LISTAR FILMES
-export const list = (request, response) => {
+// Lista de Filme
+export const list = async (request, response) => {
+  const movies = await Movie.find();
   return response.json(movies);
 };
 
-// BUSCAR POR ID
-export const getById = (request, response) => {
-  const  id  = request.params.id;
-  const movie = movies.find((m) => m.id === id);
-
-  if (!movie) {
-    return response.status(404).json({ message: "Filme não encontrado" });
-  }
-
+// Buscar Filme por ID
+export const getById = async (request, response) => {
+  const id = request.params.id;
+  const movie = await Movie.findById(id);
   return response.json(movie);
 };
 
-// CRIAR FILME
-export const create = (request, response) => {
-  const { title, description, year, genres, image, video } = request.body;
+// Criar Filme
+export const create = async (request, response) => {
+  const movie = request.body;
 
-  const newMovie = {
-    id: uuidv4(),
-    title,
-    description: description || "sem descrição",
-    year: year || "sem ano definido",
-    genres: genres || "sem gênero definido",
-    image: image || "sem imagem definida",
-    video: video || "sem vídeo definido",
-  };
+  const newMovie = new Movie(movie);
+  await newMovie.save(); // salva o novo usuário no banco de dados
 
-  movies.push(newMovie);
-
-  return response.status(201).json(newMovie);
+  return response.status(201).json(newMovie); // retorna o usuário criado com status 201 (Created)
 };
 
-// ATUALIZAR FILME
-export const update = (request, response) => {
-  const id  = request.params.id;
-  const { title, description, year, genres, image, video } = request.body;
+// Atualizar Filme por ID
+export const update = async (request, response) => {
+  const id = request.params.id;
+  const movie = request.body;
 
-  const movieIndex = movies.find((m) => m.id === id );
+  const updatedMovie = await Movie.findByIdAndUpdate(id, movie, {
+    returnDocument: "after",
+  });
 
-  if (movieIndex < 0) {
+  if (!updatedMovie) {
     return response.status(404).json({ message: "Filme não encontrado" });
   }
-
-  const updatedMovie = {
-    title,
-    description,
-    year,
-    genres,
-    image,
-    video,
-  };
-
-  movies[movieIndex] = updatedMovie;
-
   return response.json(updatedMovie);
 };
 
-// REMOVER FILME
-export const remove = (request, response) => {
+// Remover Filme por ID
+export const remove = async (request, response) => {
   const id = request.params.id;
-  const movieIndex = movies.find((m) => m.id === id);
+  const movie = await Movie.findByIdAndDelete(id);
 
-  if (movieIndex < 0) {
-    return response.status(404).json({ message: "Filme não encontrado" });
-  }
-
-  movies.splice(movieIndex, 1);
-
-  return response.json({ message: "Filme removido com sucesso" });
+  return response.status(204).json("Filme Removido"); // retorna status 204 (No Content) para indicar que a operação foi bem-sucedida, mas não há conteúdo para retornar
 };
 
 export default { list, create, getById, update, remove };

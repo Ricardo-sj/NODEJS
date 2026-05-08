@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import movieController from "../controllers/MovieController.js";
+import movieController from "../controllers/movieController.js";
 
 const routes = Router();
 routes.get("/movies", movieController.list);
