@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-
-const connectDB = "mongodb+srv://sergiotelos:12345@cluster0.23uy78y.mongodb.net/simulador8?appName=Cluster0";
+import dotenv from "dotenv/config";
+const connectDB = process.env.DB_URI;
 
 mongoose.connect(connectDB)
 

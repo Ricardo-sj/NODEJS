@@ -24,7 +24,6 @@ const MovieSchema = new mongoose.Schema(
       type: Number,
       min: [1900, "Ano deve ser maior ou igual a 1900"],
       max: [new Date().getFullYear(), "Ano não pode ser no futuro"],
-      default: "Ano não informado",
     },
     genre: {
       type: String,
